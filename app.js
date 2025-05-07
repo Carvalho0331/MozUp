@@ -1,5 +1,5 @@
 // Conexão com Google Sheets
-const SCRIPT_URL = 'SUA_URL_DE_SCRIPT_AQUI';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxy-kWpdrJUApzWeMNFcItIrkMZXd8QfjCK-zopY8aoB1-BVHqbCwLdg0Lt_Lci2G2XMg/exec';
 
 document.addEventListener('DOMContentLoaded', () => {
   loadEmpresas();
