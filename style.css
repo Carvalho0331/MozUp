@@ -5,57 +5,117 @@
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: var(--mozup-light);
+  * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--mozup-light);
+    color: var(--mozup-dark);
+    line-height: 1.6;
   }
   
   .app-container {
-    max-width: 100%;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
   }
   
   header {
-    background: white;
-    padding: 1rem;
-    box-shadow: var(--shadow);
     text-align: center;
+    padding: 20px 0;
   }
   
-  .logo {
-    height: 40px;
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
   }
   
-  .card {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin: 1rem;
-    box-shadow: var(--shadow);
+  .mozup-orange {
+    color: var(--mozup-orange);
   }
   
-  .primary-btn {
+  .input-group {
+    margin-bottom: 20px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  
+  input:focus, select:focus {
+    border-color: var(--mozup-orange);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255,107,0,0.2);
+  }
+  
+  .mozup-button {
     background: var(--mozup-orange);
     color: white;
     border: none;
-    padding: 1rem;
+    padding: 15px;
     border-radius: 8px;
+    font-size: 16px;
     font-weight: 600;
-    margin: 1rem;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
   }
   
-  /* Estilos para mobile */
-  @media (max-width: 600px) {
-    .card {
-      margin: 0.5rem;
-      padding: 1rem;
-    }
+  .mozup-button:hover {
+    background: #E05E00;
+    transform: translateY(-2px);
+  }
+  
+  .icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+  
+  .toast-hidden {
+    visibility: hidden;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--mozup-dark);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  
+  .toast-visible {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  footer {
+    text-align: center;
+    margin-top: auto;
+    padding: 20px 0;
+    color: #666;
   }

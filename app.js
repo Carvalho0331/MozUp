@@ -1,39 +1,76 @@
-// Conexão com Google Sheets
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxy-kWpdrJUApzWeMNFcItIrkMZXd8QfjCK-zopY8aoB1-BVHqbCwLdg0Lt_Lci2G2XMg/exec';
+// Configuração
+const API_URL = 'https://script.google.com/macros/s/AKfycbwbCaDnt26A-z5jgEbWrxncYreOyrs9pH7EA_Zsq8nid1QK2bNoanClFg_ydCh4_6BKAw/exec';
 
+// Elementos DOM
+const form = document.getElementById('presencaForm');
+const empresaSelect = document.getElementById('empresa');
+const toast = document.getElementById('toast');
+
+// Carregar empresas ao iniciar
 document.addEventListener('DOMContentLoaded', () => {
   loadEmpresas();
-  setupForm();
 });
 
-function loadEmpresas() {
-  fetch(`${SCRIPT_URL}?action=getEmpresas`)
-    .then(response => response.json())
-    .then(data => {
-      const select = document.getElementById('empresa');
-      select.innerHTML = data.map(e => `<option value="${e}">${e}</option>`);
-    });
+// Carregar lista de empresas
+async function loadEmpresas() {
+  try {
+    const response = await fetch(`${API_URL}?action=getEmpresas`);
+    const data = await response.json();
+    
+    if (data.status === 'success') {
+      empresaSelect.innerHTML = data.data.map(empresa => 
+        `<option value="${empresa}">${empresa}</option>`
+      ).join('');
+    } else {
+      showToast('Erro ao carregar empresas');
+    }
+  } catch (error) {
+    showToast('Falha na conexão');
+    console.error('Erro:', error);
+  }
 }
 
-function setupForm() {
-  document.getElementById('salvar').addEventListener('click', () => {
-    const data = {
-      empresa: document.getElementById('empresa').value,
-      participante: document.getElementById('participante').value
-      // Adicione outros campos
-    };
+// Enviar formulário
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const formData = {
+    empresa: empresaSelect.value,
+    participante: document.getElementById('participante').value,
+    // Adicione outros campos conforme necessário
+  };
 
-    fetch(`${SCRIPT_URL}?action=salvar`, {
+  try {
+    const response = await fetch(API_URL, {
       method: 'POST',
-      body: JSON.stringify(data)
-    })
-    .then(showToast('Dados salvos com sucesso!'));
-  });
-}
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      showToast('Presença registrada!');
+      form.reset();
+    } else {
+      showToast('Erro ao salvar: ' + result.message);
+    }
+  } catch (error) {
+    showToast('Falha na conexão');
+    console.error('Erro:', error);
+  }
+});
 
+// Mostrar notificação
 function showToast(message) {
-  const toast = document.getElementById('toast');
   toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+  toast.classList.remove('toast-hidden');
+  toast.classList.add('toast-visible');
+  
+  setTimeout(() => {
+    toast.classList.remove('toast-visible');
+    toast.classList.add('toast-hidden');
+  }, 3000);
 }

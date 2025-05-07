@@ -4,38 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MOZUP Controle</title>
+  <meta name="theme-color" content="#FF6B00">
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./style.css">
   <link rel="icon" href="icons/icon-192x192.png">
 </head>
 <body>
   <div class="app-container">
     <header>
-      <img src="logo-mozup.svg" alt="MOZUP" class="logo">
-      <h1>Controle de Presenças</h1>
+      <h1><span class="mozup-orange">MOZUP</span> Presenças</h1>
     </header>
 
     <main>
-      <div class="card">
-        <label for="empresa">
-          <i class="icon">🏢</i> Empresa
-        </label>
-        <select id="empresa" required></select>
-      </div>
+      <form id="presencaForm">
+        <div class="input-group">
+          <label for="empresa">Empresa</label>
+          <select id="empresa" required></select>
+        </div>
 
-      <div class="card">
-        <label for="participante">
-          <i class="icon">👤</i> Participante
-        </label>
-        <input type="text" id="participante" required>
-      </div>
+        <div class="input-group">
+          <label for="participante">Participante</label>
+          <input type="text" id="participante" required>
+        </div>
 
-      <!-- Outros campos aqui -->
-
-      <button id="salvar" class="primary-btn">
-        <i class="icon">💾</i> Salvar Dados
-      </button>
+        <button type="submit" class="mozup-button">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+          </svg>
+          Registrar Presença
+        </button>
+      </form>
     </main>
 
     <footer>
@@ -43,11 +42,21 @@
     </footer>
   </div>
 
-  <div id="toast"></div>
-  <script src="app.js"></script>
+  <div id="toast" class="toast-hidden"></div>
+  
+  <script src="./app.js"></script>
   <script>
+    // Registrar Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+            console.log('SW registrado:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Falha no SW:', error);
+          });
+      });
     }
   </script>
 </body>
