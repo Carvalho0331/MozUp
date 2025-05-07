@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOZUP Controle</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="icons/icon-192x192.png">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <img src="logo-mozup.svg" alt="MOZUP" class="logo">
+      <h1>Controle de Presenças</h1>
+    </header>
+
+    <main>
+      <div class="card">
+        <label for="empresa">
+          <i class="icon">🏢</i> Empresa
+        </label>
+        <select id="empresa" required></select>
+      </div>
+
+      <div class="card">
+        <label for="participante">
+          <i class="icon">👤</i> Participante
+        </label>
+        <input type="text" id="participante" required>
+      </div>
+
+      <!-- Outros campos aqui -->
+
+      <button id="salvar" class="primary-btn">
+        <i class="icon">💾</i> Salvar Dados
+      </button>
+    </main>
+
+    <footer>
+      <p>© 2023 MOZUP Tecnologia</p>
+    </footer>
+  </div>
+
+  <div id="toast"></div>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
