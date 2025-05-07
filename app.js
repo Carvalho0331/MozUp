@@ -1,76 +1,122 @@
-// Configuração
-const API_URL = 'https://script.google.com/macros/s/AKfycbwbCaDnt26A-z5jgEbWrxncYreOyrs9pH7EA_Zsq8nid1QK2bNoanClFg_ydCh4_6BKAw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzD5j2vVfLn7RfcPXR6L2zOZ9GfJV7BhiVNGvpbUWxTks5GqbxpB8w19sqoNxc5JpSEAg/exec'; // Substitua pelo seu ID
+const DOM = {
+  form: document.getElementById('presencaForm'),
+  empresa: document.getElementById('empresa'),
+  correcao: document.getElementById('correcao'),
+  participante: document.getElementById('participante'),
+  email: document.getElementById('email'),
+  contacto: document.getElementById('contacto'),
+  funcao: document.getElementById('funcao'),
+  genero: document.getElementById('genero'),
+  toast: document.getElementById('toast'),
+  loading: document.getElementById('loading'),
+  btnText: document.getElementById('btnText'),
+  btnLoading: document.getElementById('btnLoading')
+};
 
-// Elementos DOM
-const form = document.getElementById('presencaForm');
-const empresaSelect = document.getElementById('empresa');
-const toast = document.getElementById('toast');
+// Função para carregar detalhes da empresa
+async function carregarDetalhesEmpresa() {
+  try {
+    const empresaSelecionada = DOM.empresa.value;
+    if (!empresaSelecionada) return;
 
-// Carregar empresas ao iniciar
-document.addEventListener('DOMContentLoaded', () => {
-  loadEmpresas();
+    mostrarLoading(true);
+    const resposta = await fetch(`${API_URL}?action=getDetalhes&empresa=${encodeURIComponent(empresaSelecionada)}`);
+    const detalhes = await resposta.json();
+
+    DOM.participante.value = detalhes.participante || '';
+    DOM.email.value = detalhes.email || '';
+    DOM.contacto.value = detalhes.contacto || '';
+    DOM.funcao.value = detalhes.funcao || '';
+    DOM.genero.value = detalhes.genero || '';
+
+  } catch (error) {
+    mostrarToast('Erro ao carregar detalhes da empresa');
+    console.error('Erro:', error);
+  } finally {
+    mostrarLoading(false);
+  }
+}
+
+// Inicialização do app
+document.addEventListener('DOMContentLoaded', async () => {
+  await carregarEmpresas();
+  DOM.empresa.addEventListener('change', carregarDetalhesEmpresa);
+  DOM.form.addEventListener('submit', enviarFormulario);
 });
 
 // Carregar lista de empresas
-async function loadEmpresas() {
+async function carregarEmpresas() {
   try {
-    const response = await fetch(`${API_URL}?action=getEmpresas`);
-    const data = await response.json();
+    mostrarLoading(true);
+    const resposta = await fetch(`${API_URL}?action=getEmpresas&cache=${Date.now()}`);
+    const empresas = await resposta.json();
     
-    if (data.status === 'success') {
-      empresaSelect.innerHTML = data.data.map(empresa => 
-        `<option value="${empresa}">${empresa}</option>`
-      ).join('');
-    } else {
-      showToast('Erro ao carregar empresas');
-    }
+    DOM.empresa.innerHTML = empresas
+      .map(empresa => `<option value="${empresa}">${empresa}</option>`)
+      .join('');
+
   } catch (error) {
-    showToast('Falha na conexão');
-    console.error('Erro:', error);
+    mostrarToast('Erro ao carregar empresas');
+    console.error(error);
+  } finally {
+    mostrarLoading(false);
   }
 }
 
 // Enviar formulário
-form.addEventListener('submit', async (e) => {
+async function enviarFormulario(e) {
   e.preventDefault();
   
-  const formData = {
-    empresa: empresaSelect.value,
-    participante: document.getElementById('participante').value,
-    // Adicione outros campos conforme necessário
+  const dados = {
+    action: 'salvarDados',
+    empresaOriginal: DOM.empresa.value.trim(),       // Nome original (para busca)
+    empresa: DOM.correcao.value.trim() || DOM.empresa.value.trim(), // Nome corrigido
+    participante: DOM.participante.value.trim(),
+    email: DOM.email.value.trim(),
+    contacto: DOM.contacto.value.trim(),
+    funcao: DOM.funcao.value.trim(),
+    genero: DOM.genero.value
   };
 
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    });
+    alterarEstadoBotao(true);
+    mostrarLoading(true);
     
-    const result = await response.json();
-    
-    if (result.status === 'success') {
-      showToast('Presença registrada!');
-      form.reset();
-    } else {
-      showToast('Erro ao salvar: ' + result.message);
-    }
-  } catch (error) {
-    showToast('Falha na conexão');
-    console.error('Erro:', error);
-  }
-});
+    const params = new URLSearchParams(dados).toString();
+    const resposta = await fetch(`${API_URL}?${params}`);
+    const resultado = await resposta.json();
 
-// Mostrar notificação
-function showToast(message) {
-  toast.textContent = message;
-  toast.classList.remove('toast-hidden');
-  toast.classList.add('toast-visible');
-  
-  setTimeout(() => {
-    toast.classList.remove('toast-visible');
-    toast.classList.add('toast-hidden');
-  }, 3000);
+    if (resultado.status === 'success') {
+      DOM.form.reset();
+      DOM.correcao.value = '';
+      setTimeout(() => carregarEmpresas(), 1000); // Recarrega empresas após 1s
+    }
+
+    mostrarToast(resultado.message || 'Dados salvos!');
+
+  } catch (error) {
+    mostrarToast('Erro na conexão com o servidor');
+    console.error('Erro:', error);
+  } finally {
+    alterarEstadoBotao(false);
+    mostrarLoading(false);
+  }
+}
+
+// Funções auxiliares
+function mostrarToast(mensagem, duracao = 3000) {
+  DOM.toast.textContent = mensagem;
+  DOM.toast.classList.add('toast-visible');
+  setTimeout(() => DOM.toast.classList.remove('toast-visible'), duracao);
+}
+
+function mostrarLoading(ativo) {
+  DOM.loading.style.display = ativo ? 'flex' : 'none';
+}
+
+function alterarEstadoBotao(carregando) {
+  DOM.btnText.style.display = carregando ? 'none' : 'inline';
+  DOM.btnLoading.style.display = carregando ? 'inline' : 'none';
+  DOM.form.querySelector('button').disabled = carregando;
 }
