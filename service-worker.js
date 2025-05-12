@@ -1,31 +1,32 @@
-const CACHE_NAME = 'mozup-v9'; // Altere a versão!
+const CACHE_NAME = 'mozup-v14';
 const ASSETS = [
-  './',
-  './index.html',
-  './style.css',
-  './app.js'
+    './',
+    './index.html',
+    './select-training.html',
+    './form.html',
+    './style.css',
+    './app.js',
+    './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        // Adiciona recursos um por um para identificar falhas
-        return Promise.all(
-          ASSETS.map(asset => {
-            return cache.add(asset).catch(error => {
-              console.error('Falha ao armazenar:', asset, error);
-              throw error;
-            });
-          })
-        );
-      })
-  );
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                return Promise.all(
+                    ASSETS.map(asset => {
+                        return cache.add(asset).catch(error => {
+                            console.error('Falha ao armazenar:', asset, error);
+                        });
+                    })
+                );
+            })
+    );
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-  );
+    event.respondWith(
+        caches.match(event.request)
+            .then(response => response || fetch(event.request))
+    );
 });
